@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: seo-aeo-performance-report
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /healthz.php
+    envVars:
+      - key: VEBAPI_KEY
+        sync: false
+      - key: AUTH_USER
+        sync: false
+      - key: AUTH_PASSWORD
+        sync: false

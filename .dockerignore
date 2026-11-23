@@ -1,0 +1,10 @@
+.git
+.gitignore
+config.php
+cache/*
+!cache/.gitkeep
+render.yaml
+README.md
+DEPLOYMENT.md
+.DS_Store
+Thumbs.db
