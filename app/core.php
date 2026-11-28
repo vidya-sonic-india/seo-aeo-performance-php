@@ -57,6 +57,28 @@ if (is_file(ROOT_DIR . '/config.php')) {
 $API_KEY = $API_KEY ?: trim((string)($_SERVER['VEBAPI_KEY'] ?? $_ENV['VEBAPI_KEY'] ?? getenv('VEBAPI_KEY') ?: '')) ?: VEBAPI_KEY_FALLBACK;
 $DEMO    = strtolower($API_KEY) === 'demo';
 
+// ─────────────────────── OPTIONAL TEAM AUTH ───────────────────────
+$AUTH_USER_EXPECTED = trim((string)($_SERVER['AUTH_USER'] ?? $_ENV['AUTH_USER'] ?? getenv('AUTH_USER') ?: ''));
+$AUTH_PASS_EXPECTED = trim((string)($_SERVER['AUTH_PASSWORD'] ?? $_ENV['AUTH_PASSWORD'] ?? getenv('AUTH_PASSWORD') ?: ''));
+if ($AUTH_USER_EXPECTED !== '' && $AUTH_PASS_EXPECTED !== '') {
+    $inUser = (string)($_SERVER['PHP_AUTH_USER'] ?? '');
+    $inPass = (string)($_SERVER['PHP_AUTH_PW'] ?? '');
+    if ($inUser === '' && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        if (str_starts_with(strtolower($_SERVER['HTTP_AUTHORIZATION']), 'basic ')) {
+            $decoded = (string)base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6));
+            if (str_contains($decoded, ':')) {
+                [$inUser, $inPass] = explode(':', $decoded, 2);
+            }
+        }
+    }
+    if ($inUser !== $AUTH_USER_EXPECTED || $inPass !== $AUTH_PASS_EXPECTED) {
+        header('WWW-Authenticate: Basic realm="Restricted Access - Internal Team Only"');
+        header('HTTP/1.0 401 Unauthorized');
+        echo '<!DOCTYPE html><html><head><title>401 Unauthorized</title><style>body{font-family:sans-serif;padding:50px;text-align:center;}</style></head><body><h2>Restricted Access</h2><p>Please enter valid team credentials to access this tool.</p></body></html>';
+        exit;
+    }
+}
+
 // ──────────────────────────── HELPERS ─────────────────────────────
 function h($v): string { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 
