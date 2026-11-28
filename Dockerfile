@@ -12,6 +12,9 @@ RUN php -m | grep -i curl || docker-php-ext-install curl
 # Enable required Apache modules
 RUN a2enmod rewrite headers auth_basic authn_file authz_core authz_user
 
+# Suppress Apache ServerName warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Custom PHP settings for timeout and memory
 RUN { \
         echo "max_execution_time = 120"; \
